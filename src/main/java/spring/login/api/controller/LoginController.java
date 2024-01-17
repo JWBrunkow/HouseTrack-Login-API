@@ -11,12 +11,12 @@ import spring.login.exception.custom.UserAlreadyExistsException;
 import spring.login.exception.custom.UserNotFoundException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 public class LoginController {
-
 
     @Autowired
     private UserService userService;
@@ -30,6 +30,14 @@ public class LoginController {
         List<Long> userIds = users.stream().map(UserResponseDTO::getId).collect(Collectors.toList());
         return ResponseEntity.ok(userIds);
     }
+    @GetMapping("/getUserDetails/{userId}")
+    public ResponseEntity<UserResponseDTO> getUserDetails(@PathVariable Long userId) {
+        UserResponseDTO userDetails = userService.getUserDetailsById(userId);
+        if (userDetails == null) {
+            throw new UserNotFoundException();
+        }
+        return ResponseEntity.ok(userDetails);
+    }
 
     @PostMapping("/addUser")
     public ResponseEntity<UserResponseDTO> addUser(@RequestBody UserRequestDTO userDTO) {
@@ -40,14 +48,13 @@ public class LoginController {
         return ResponseEntity.ok(responseDTO);
     }
 
-
     @PostMapping("/checkUser")
-    public ResponseEntity<Boolean> checkUser(@RequestBody UserRequestDTO userDTO) {
+    public ResponseEntity<Long> checkUser(@RequestBody UserRequestDTO userDTO) {
         if (userDTO.getPassword() == null || (userDTO.getUsername() == null && userDTO.getEmail() == null)) {
             throw new InvalidUserException();
         }
-        boolean isValid = userService.checkUser(userDTO);
-        return ResponseEntity.ok(isValid);
+        Long userId = userService.checkUser(userDTO);
+        return ResponseEntity.ok(userId);
     }
 
 

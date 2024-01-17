@@ -11,7 +11,9 @@ public interface UserService {
 
     UserResponseDTO addUser(UserRequestDTO userDTO);
 
-    boolean checkUser(UserRequestDTO userDTO);
+    UserResponseDTO getUserDetailsById(Long userId);
+
+    Long checkUser(UserRequestDTO userDTO);
 
     boolean doesUserExist(UserRequestDTO userDTO);
     UserResponseDTO updateUser(Long userId, UserRequestDTO userDTO);

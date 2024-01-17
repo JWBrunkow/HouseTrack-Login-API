@@ -38,17 +38,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean checkUser(UserRequestDTO userDTO) {
+    public Long checkUser(UserRequestDTO userDTO) {
         Optional<User> userOptional;
         if (userDTO.getUsername() != null) {
             userOptional = userRepository.findByUsername(userDTO.getUsername());
         } else {
             userOptional = userRepository.findByEmail(userDTO.getEmail());
         }
-        if (userOptional.isEmpty() || !userDTO.getPassword().equals(userOptional.get().getPassword())) {
+
+        if (userOptional.isPresent() && userDTO.getPassword().equals(userOptional.get().getPassword())) {
+            return userOptional.get().getId();
+        } else {
             throw new InvalidUserException();
         }
-        return true;
+    }
+
+    public UserResponseDTO getUserDetailsById(Long userId) {
+        User user = userRepository.findUserById(userId).orElseThrow(UserNotFoundException::new);
+        return convertToUserResponseDTO(user);
     }
 
     @Override
