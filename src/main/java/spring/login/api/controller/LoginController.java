@@ -11,11 +11,10 @@ import spring.login.exception.custom.UserAlreadyExistsException;
 import spring.login.exception.custom.UserNotFoundException;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+@CrossOrigin(origins = {"*"})
 public class LoginController {
 
     @Autowired
@@ -24,35 +23,31 @@ public class LoginController {
     @GetMapping("/getIds")
     public ResponseEntity<List<Long>> getIds() {
         List<UserResponseDTO> users = userService.getAllUsers();
-        if (users.isEmpty()) {
-            throw new UserNotFoundException();
-        }
+        if (users.isEmpty()) throw new UserNotFoundException();
+
         List<Long> userIds = users.stream().map(UserResponseDTO::getId).collect(Collectors.toList());
         return ResponseEntity.ok(userIds);
     }
     @GetMapping("/getUserDetails/{userId}")
     public ResponseEntity<UserResponseDTO> getUserDetails(@PathVariable Long userId) {
         UserResponseDTO userDetails = userService.getUserDetailsById(userId);
-        if (userDetails == null) {
-            throw new UserNotFoundException();
-        }
+        if (userDetails == null) throw new UserNotFoundException();
+
         return ResponseEntity.ok(userDetails);
     }
 
     @PostMapping("/addUser")
     public ResponseEntity<UserResponseDTO> addUser(@RequestBody UserRequestDTO userDTO) {
-        if (userService.doesUserExist(userDTO)) {
-            throw new UserAlreadyExistsException();
-        }
+        if (userService.doesUserExist(userDTO)) throw new UserAlreadyExistsException();
+
         UserResponseDTO responseDTO = userService.addUser(userDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
     @PostMapping("/checkUser")
     public ResponseEntity<Long> checkUser(@RequestBody UserRequestDTO userDTO) {
-        if (userDTO.getPassword() == null || (userDTO.getUsername() == null && userDTO.getEmail() == null)) {
-            throw new InvalidUserException();
-        }
+        if (userDTO.getPassword() == null || (userDTO.getUsername() == null && userDTO.getEmail() == null)) throw new InvalidUserException();
+
         Long userId = userService.checkUser(userDTO);
         return ResponseEntity.ok(userId);
     }
